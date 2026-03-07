@@ -1,0 +1,17 @@
+### QA API ###
+/virtual_env
+
+### PYCACHE ###
+__pycache__/
+*.pyc
+
+### JSON ###
+/static
+/static/swagger.json
+
+### IMAGE ###
+/image
+
+### ENV ###
+.env.*
+!.env.example
