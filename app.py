@@ -37,9 +37,10 @@ def token_invalido(callback):
     return jsonify({"msg": 'Token inválido ou ausente. Verifique o cabeçalho Authorization.'}), 401
 
 ### swagger config ###
+import time
 SWAGGER_URL = '/swagger'
-API_URL = memory.utilits["HOST"]+'/static/swagger.json'
-SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(  
+API_URL = memory.utilits["HOST"] + '/static/swagger.json?v=' + str(int(time.time()))
+SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
     config={
@@ -48,6 +49,14 @@ SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
 )
 
 app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
+
+@app.after_request
+def add_no_cache(response):
+    if request.path.startswith('/static/swagger'):
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    return response
 
 api = Api(app)
 
