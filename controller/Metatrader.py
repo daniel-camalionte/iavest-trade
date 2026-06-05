@@ -10,6 +10,7 @@ from model.ControllerError import ControllerError
 
 import re
 import json
+import config.env as memory
 
 class MetatraderLoginController(MethodView):
     def post(self):
@@ -80,6 +81,9 @@ class MetatraderTradeStartController(MethodView):
               if isinstance(data, str):
                   data = json.loads(data)
 
+          if memory.toggle["TRADE"]:
+              return {"toggle": True}, 200
+
           ruleMetatraderTrade = MetatraderTradeRule()
           result = ruleMetatraderTrade.create(data)
 
@@ -116,6 +120,9 @@ class MetatraderTradeExitController(MethodView):
               data = request.get_json(force=True, silent=True)
               if isinstance(data, str):
                   data = json.loads(data)
+
+          if memory.toggle["TRADE"]:
+              return {"toggle": True}, 200
 
           ruleMetatraderTrade = MetatraderTradeRule()
           result = ruleMetatraderTrade.close(data)

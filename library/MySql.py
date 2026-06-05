@@ -15,7 +15,7 @@ def _get_pool():
     if _pool is None:
         _pool = PooledDB(
             creator=pymysql,
-            maxconnections=10,
+            maxconnections=50,
             host=memory.mysql["DB_HOSTNAME"],
             port=memory.mysql["DB_PORT"],
             user=memory.mysql["DB_USER"],

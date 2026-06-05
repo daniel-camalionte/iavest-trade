@@ -9,6 +9,11 @@ mysql = {
     "DB_PORT": int(os.environ.get("MYSQL_DB_PORT", 3306))
 }
 
+# TOGGLE
+toggle = {
+    "TRADE": os.environ.get("TRADE_TOGGLE", "false").lower() == "true"
+}
+
 # UTILITS
 utilits = {
     "HOST": os.environ.get("UTILITS_HOST", ""),

@@ -34,7 +34,25 @@
       "Bash(python.exe:*)",
       "WebSearch",
       "WebFetch(domain:docs.asaas.com)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "PowerShell(\\(Get-Command python3 -ErrorAction SilentlyContinue\\).Source; \\(Get-Command py -ErrorAction SilentlyContinue\\).Source; where.exe python 2>$null; where.exe py 2>$null)",
+      "PowerShell(py --version)",
+      "PowerShell(py -c \"import flask; print\\(flask.__version__\\)\")",
+      "PowerShell(py -0p 2>&1)",
+      "PowerShell($pythons = @\\(\"C:\\\\Users\\\\Japinguinha\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python38-32\\\\python.exe\", \"C:\\\\Python39\\\\python.exe\", \"C:\\\\Python310\\\\python.exe\", \"C:\\\\Python311\\\\python.exe\", \"C:\\\\Python312\\\\python.exe\"\\); foreach \\($p in $pythons\\) { if \\(Test-Path $p\\) { & $p -c \"import flask; print\\('flask ok: ' + flask.__version__\\)\" 2>&1; break } })",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\Japinguinha\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\\" | ForEach-Object { $dir = $_.FullName; Get-ChildItem \"$dir\\\\python.exe\" -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName } })",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\Japinguinha\" -Directory | Where-Object { $_.Name -match \"venv|env|conda|pyenv\" } | Select-Object Name; Get-ChildItem \"C:\\\\GIT\" -Directory | Where-Object { $_.Name -match \"venv|env\" } | Select-Object Name)",
+      "Read(//c/GIT/iavest/**)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:3000/version\" -Method GET -TimeoutSec 5; $r.StatusCode; $r.Content } catch { $_.Exception.Message })",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:5000/version\" -Method GET -TimeoutSec 5; $r.StatusCode; $r.Content } catch { $_.Exception.Message })",
+      "PowerShell($body = '{\"id_estrategia\": 1, \"account_number\": 87654321121, \"password\": \"123456\"}'; try { $r = Invoke-WebRequest -Uri \"http://localhost:3000/metatrader/login\" -Method POST -Body $body -ContentType \"application/json\" -TimeoutSec 10; $r.StatusCode; $r.Content } catch { $_.Exception.Response.StatusCode.value__; $_.Exception.Message; $_.Exception.Response })",
+      "PowerShell(try { Invoke-RestMethod -Uri \"http://localhost:3000/metatrader/login\" -Method POST -Body '{\"id_estrategia\": 1, \"account_number\": 87654321121, \"password\": \"123456\"}' -ContentType \"application/json\" -TimeoutSec 10 } catch { $_.ErrorDetails.Message })",
+      "PowerShell(Start-Sleep -Seconds 2; try { Invoke-RestMethod -Uri \"http://localhost:3000/metatrader/login\" -Method POST -Body '{\"id_estrategia\": 1, \"account_number\": 87654321121, \"password\": \"123456\"}' -ContentType \"application/json\" -TimeoutSec 10 | ConvertTo-Json } catch { $_.ErrorDetails.Message })",
+      "PowerShell(try { Invoke-RestMethod -Uri \"http://localhost:3000/metatrader/login\" -Method POST -Body '{\"id_estrategia\": 1, \"account_number\": 87654321121, \"password\": \"123456\"}' -ContentType \"application/json\" -TimeoutSec 10 | ConvertTo-Json } catch { $_.ErrorDetails.Message })",
+      "PowerShell(try { Invoke-RestMethod -Uri \"http://localhost:3000/metatrader/login\" -Method POST -Body '{\"id_estrategia\": 1, \"account_number\": 1001442906, \"password\": \"123456\"}' -ContentType \"application/json\" -TimeoutSec 10 | ConvertTo-Json } catch { $_.ErrorDetails.Message })"
+    ],
+    "additionalDirectories": [
+      "c:\\GIT\\iavest\\iavest-backend\\rule"
     ]
   }
 }
