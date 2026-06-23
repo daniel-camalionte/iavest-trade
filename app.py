@@ -71,6 +71,12 @@ api.add_resource(appController.MetatraderTradeStartController, '/metatrader/trad
 #Metatrader Trade Exit
 api.add_resource(appController.MetatraderTradeExitController, '/metatrader/trade/exit')
 
+#Metatrader Data (candles)
+api.add_resource(appController.MetatraderDataController, '/metatrader/data')
+
+#Metatrader Log (debug)
+api.add_resource(appController.Mt5LogController, '/metatrader/log')
+
 #touch ~/apps_wsgi/stg.wsgi
 
 

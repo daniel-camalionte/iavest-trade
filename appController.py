@@ -1,3 +1,3 @@
 from controller.Version import VersionController
-from controller.Metatrader import MetatraderLoginController, MetatraderTradeStartController, MetatraderTradeExitController
+from controller.Metatrader import MetatraderLoginController, MetatraderTradeStartController, MetatraderTradeExitController, MetatraderDataController, Mt5LogController
 
