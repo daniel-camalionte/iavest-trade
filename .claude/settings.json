@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(docker --version)",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"Name='python.exe'\")",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3001 -ErrorAction SilentlyContinue | Select-Object LocalPort,OwningProcess; Get-Process -Id \\(Get-NetTCPConnection -LocalPort 3001 -ErrorAction SilentlyContinue\\).OwningProcess -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,Path)",
+      "PowerShell(Get-Process -Id 18180,12412 -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"ProcessId=18180 OR ProcessId=12412\")",
+      "Bash(wsl.exe -l -v)",
+      "Bash(wsl.exe -e bash -lc \"ps aux | grep -i 'app.py\\\\|python' | grep -v grep\")",
+      "Bash(stat -c '%y %n' /c/GIT/iavest/iavest-trade/.env.stg; docker inspect iavest-trade-web-1 --format '{{.State.StartedAt}}')",
+      "Read(//c/GIT/iavest/iavest-trade/**)",
+      "Bash(docker restart *)",
+      "Bash(sleep 3)",
+      "Bash(command -v mysql)",
+      "Bash(docker start *)"
+    ],
+    "additionalDirectories": [
+      "c:\\GIT\\iavest\\iavest-backend\\config",
+      "c:\\GIT\\iavest\\iavest-backend"
+    ]
+  }
+}

@@ -77,6 +77,9 @@ api.add_resource(appController.MetatraderDataController, '/metatrader/data')
 #Metatrader Log (debug)
 api.add_resource(appController.Mt5LogController, '/metatrader/log')
 
+#Claude Trader (entrega de ordens pro MT5 — consumer da guia gerada no iavest-backend)
+api.add_resource(appController.ClaudeTraderOrdemController, '/claude-trader/ordem')
+
 #touch ~/apps_wsgi/stg.wsgi
 
 

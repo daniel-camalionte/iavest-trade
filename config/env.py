@@ -25,3 +25,8 @@ jwt = {
     "JWT_SECRET_KEY": os.environ.get("JWT_SECRET_KEY", ""),
     "JWT_ACCESS_TOKEN_EXPIRES": int(os.environ.get("JWT_ACCESS_TOKEN_EXPIRES", 2629743))
 }
+
+# CLAUDE TRADER MT5
+claude_trader_mt5 = {
+    "PASSWORD": os.environ.get("CLAUDE_TRADER_MT5_PASSWORD", "")
+}

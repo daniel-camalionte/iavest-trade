@@ -52,7 +52,8 @@
       "PowerShell(try { Invoke-RestMethod -Uri \"http://localhost:3000/metatrader/login\" -Method POST -Body '{\"id_estrategia\": 1, \"account_number\": 1001442906, \"password\": \"123456\"}' -ContentType \"application/json\" -TimeoutSec 10 | ConvertTo-Json } catch { $_.ErrorDetails.Message })"
     ],
     "additionalDirectories": [
-      "c:\\GIT\\iavest\\iavest-backend\\rule"
+      "c:\\GIT\\iavest\\iavest-backend\\rule",
+      "c:\\GIT\\iavest\\iavest-backend\\model"
     ]
   }
 }
