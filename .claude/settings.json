@@ -13,7 +13,10 @@
       "Bash(docker restart *)",
       "Bash(sleep 3)",
       "Bash(command -v mysql)",
-      "Bash(docker start *)"
+      "Bash(docker start *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git add *)"
     ],
     "additionalDirectories": [
       "c:\\GIT\\iavest\\iavest-backend\\config",

@@ -145,6 +145,12 @@ class ClaudeTraderOrdemRule:
                 ultima = ClaudeTraderOrdemRule._ultima_entrega(account_number, id_estrategia, op_seg["id_operacao"])
                 if not ultima or ultima.get("stop_loss") != op_seg["stop_loss"]:
                     return ("mover_stop", op_seg["tipo_posicao"], op_seg.get("motivo"), op_seg)
+                # CONFIRMACAO DE ABERTURA: 1a vez que vemos o EA segurando esta op (tem_posicao=1),
+                # grava um marcador (linha com tem_posicao_aberta_recebida=1). E o que distingue
+                # "abriu de verdade" de "ainda nao abriu (lag)" quando ele ficar flat depois — sem
+                # isso, um flat logo apos o 'abrir' era lido como saida manual (bug do lag).
+                if not ClaudeTraderOrdemRule._confirmada(account_number, id_estrategia, op_seg["id_operacao"]):
+                    return ("manter", op_seg["tipo_posicao"], "Abertura confirmada pelo EA", op_seg)
                 return (None, None, None, None)
 
             # a op que ele seguia encerrou (ou não achou) e ele ainda tem posição → encerra
@@ -165,14 +171,20 @@ class ClaudeTraderOrdemRule:
         registra a SAÍDA FLAT 1x. (2) Senão, oferece a op FRESCA que ele não operou — reentrada
         tem prioridade; principal só dentro da janela de entrada (login atrasado não persegue)."""
 
-        # 1) acabou de sair? última entrega geral ainda "viva" mas o EA está flat → saída manual/SL
+        # 1) acabou de sair? última entrega geral ainda "viva" mas o EA está flat.
         ultima = ClaudeTraderOrdemRule._ultima_geral(account_number, id_estrategia)
-        if ultima and ultima["acao"] in ("abrir", "mover_stop"):
-            op_saida = ClaudeTraderOrdemRule._op_por_id(ultima["id_operacao"])
-            return ("encerrar_flat",
-                    (op_saida or {}).get("tipo_posicao") or ultima.get("tipo_posicao"),
-                    "Saída flat: cliente sem posição com entrega ativa (saída manual/SL nativo) — registra e libera reentrada",
-                    op_saida or {"id_operacao": ultima.get("id_operacao")})
+        if ultima and ultima["acao"] in ("abrir", "mover_stop", "manter"):
+            # SO e saida real se a abertura foi CONFIRMADA (o EA reportou tem_posicao=1 nesta op em
+            # algum poll). Senao, "flat + abrir entregue" = ainda NAO abriu (lag entre entregar o
+            # 'abrir' e o EA executar/confirmar) -> ESPERA, nao mata a ordem. Antes isso virava
+            # encerrar_flat indevido e abandonava a entrada em segundos (bug do lag).
+            if ClaudeTraderOrdemRule._confirmada(account_number, id_estrategia, ultima["id_operacao"]):
+                op_saida = ClaudeTraderOrdemRule._op_por_id(ultima["id_operacao"])
+                return ("encerrar_flat",
+                        (op_saida or {}).get("tipo_posicao") or ultima.get("tipo_posicao"),
+                        "Saída flat: cliente confirmou abertura e agora está sem posição (saída manual/SL nativo)",
+                        op_saida or {"id_operacao": ultima.get("id_operacao")})
+            return (None, None, None, None)  # nao confirmou abertura ainda -> espera o EA abrir
 
         # 2) op fresca não-operada: reentrada primeiro, depois a principal (na janela de entrada)
         candidatas = []
@@ -247,7 +259,7 @@ class ClaudeTraderOrdemRule:
         """A op que o cliente está espelhando AGORA = a da última entrega viva (abrir/mover_stop).
         Pode ser a principal OU a reentrada. Fallback: a principal."""
         ultima = ClaudeTraderOrdemRule._ultima_geral(account_number, id_estrategia)
-        if ultima and ultima["acao"] in ("abrir", "mover_stop") and ultima["id_operacao"]:
+        if ultima and ultima["acao"] in ("abrir", "mover_stop", "manter") and ultima["id_operacao"]:
             op = ClaudeTraderOrdemRule._op_por_id(ultima["id_operacao"])
             if op:
                 return op
@@ -283,3 +295,19 @@ class ClaudeTraderOrdemRule:
              .where(["id_estrategia", "=", id_estrategia])
              .order("id_ordem", "DESC").limit(1).find())
         return r[0] if r else None
+
+    @staticmethod
+    def _confirmada(account_number, id_estrategia, id_operacao):
+        """True se o EA JA reportou posicao aberta (tem_posicao_aberta_recebida=1) para esta op em
+        algum poll — i.e., CONFIRMOU que abriu. So depois disso um 'flat' e considerado SAIDA real
+        (encerrar_flat). Antes da confirmacao, flat = ainda nao abriu (lag) -> esperar. Cobre tanto
+        o marcador 'manter' quanto qualquer 'mover_stop' (ambos gravados com tem_posicao=1)."""
+        if not id_operacao:
+            return False
+        r = (ClaudeTraderMt5OrdensModel()
+             .where(["account_number", "=", account_number])
+             .where(["id_estrategia", "=", id_estrategia])
+             .where(["id_operacao", "=", id_operacao])
+             .where(["tem_posicao_aberta_recebida", "=", 1])
+             .limit(1).find())
+        return bool(r)
