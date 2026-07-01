@@ -184,7 +184,14 @@ class ClaudeTraderOrdemRule:
                         (op_saida or {}).get("tipo_posicao") or ultima.get("tipo_posicao"),
                         "Saída flat: cliente confirmou abertura e agora está sem posição (saída manual/SL nativo)",
                         op_saida or {"id_operacao": ultima.get("id_operacao")})
-            return (None, None, None, None)  # nao confirmou abertura ainda -> espera o EA abrir
+            # NAO confirmou abertura: so ESPERA se a op AINDA ESTA ABERTA (lag entre entregar o
+            # 'abrir' e o EA executar). Se a op ja FECHOU sem ele confirmar, ele PERDEU aquela op
+            # -> nao pode ficar travado esperando pra sempre; cai pro passo 2 e re-sincroniza na op
+            # fresca atual. (Sem isso, uma conta que falha em abrir UMA op nunca mais opera.)
+            op_ult = ClaudeTraderOrdemRule._op_por_id(ultima["id_operacao"])
+            if op_ult and op_ult["status"] == "aberta":
+                return (None, None, None, None)  # op ainda viva -> espera o EA abrir (lag)
+            # op fechada e nunca confirmou -> nao trava; segue pro passo 2 (oferece op fresca)
 
         # 2) op fresca não-operada: reentrada primeiro, depois a principal (na janela de entrada)
         candidatas = []
